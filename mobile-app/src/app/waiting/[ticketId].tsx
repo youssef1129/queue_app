@@ -11,6 +11,7 @@ import { ScreenContainer } from '@/components/queue/screen-container';
 import { SkeletonBlock } from '@/components/queue/skeleton-block';
 import { ticketsApi } from '@/config';
 import { HealthcareTheme as theme } from '@/constants/theme';
+import { useCalledNotification } from '@/hooks/use-called-notification';
 import { useTicketPolling } from '@/hooks/use-ticket-polling';
 import { clearTicketId } from '@/storage/storage';
 import { getApiErrorMessage, getApiErrorStatus } from '@/utils/api-error';
@@ -29,6 +30,7 @@ export default function WaitingRoomRoute() {
 function WaitingRoom({ ticketId }: { ticketId: string }) {
   const router = useRouter();
   const { ticket, isLoading, error, isRefreshing, isNotFound, retry } = useTicketPolling(ticketId);
+  useCalledNotification(ticket?.status);
   const [isCancelling, setIsCancelling] = useState(false);
   const [cancelError, setCancelError] = useState<string | null>(null);
 

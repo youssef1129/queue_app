@@ -12,6 +12,7 @@ import { HealthcareTheme as theme } from '@/constants/theme';
 import { useJoinQueue } from '@/hooks/use-join-queue';
 import { useReasons } from '@/hooks/use-reasons';
 import { useRestoreTicket } from '@/hooks/useRestoreTicket';
+import { requestNotificationPermission } from '@/notifications/notifications';
 import { saveTicketId } from '@/storage/storage';
 
 export default function HomeScreen() {
@@ -26,6 +27,7 @@ export default function HomeScreen() {
     const ticket = await join(selectedReason);
     if (ticket) {
       await saveTicketId(ticket.id);
+      void requestNotificationPermission();
       router.push({ pathname: '/waiting/[ticketId]', params: { ticketId: ticket.id } });
     }
   }
