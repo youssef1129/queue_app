@@ -5,5 +5,6 @@ import { ReasonsService } from './reasons.service';
 @Module({
   controllers: [ReasonsController],
   providers: [ReasonsService],
+  exports: [ReasonsService],
 })
 export class ReasonsModule {}
