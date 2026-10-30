@@ -11,19 +11,31 @@ import { SkeletonBlock } from '@/components/queue/skeleton-block';
 import { HealthcareTheme as theme } from '@/constants/theme';
 import { useJoinQueue } from '@/hooks/use-join-queue';
 import { useReasons } from '@/hooks/use-reasons';
+import { useRestoreTicket } from '@/hooks/useRestoreTicket';
+import { saveTicketId } from '@/storage/storage';
 
 export default function HomeScreen() {
   const router = useRouter();
   const { reasons, isLoading, error, retry } = useReasons();
   const { join, isJoining, error: joinError, clearError } = useJoinQueue();
   const [selectedReason, setSelectedReason] = useState<ReasonCode | null>(null);
+  const { isRestoring } = useRestoreTicket();
 
   async function joinQueue() {
     if (!selectedReason) return;
     const ticket = await join(selectedReason);
     if (ticket) {
+      await saveTicketId(ticket.id);
       router.push({ pathname: '/waiting/[ticketId]', params: { ticketId: ticket.id } });
     }
+  }
+
+  if (isRestoring) {
+    return (
+      <ScreenContainer>
+        <SkeletonBlock width="100%" height={66} />
+      </ScreenContainer>
+    );
   }
 
   return (

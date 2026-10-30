@@ -12,6 +12,7 @@ import { SkeletonBlock } from '@/components/queue/skeleton-block';
 import { ticketsApi } from '@/config';
 import { HealthcareTheme as theme } from '@/constants/theme';
 import { useTicketPolling } from '@/hooks/use-ticket-polling';
+import { clearTicketId } from '@/storage/storage';
 import { getApiErrorMessage, getApiErrorStatus } from '@/utils/api-error';
 
 export default function WaitingRoomRoute() {
@@ -40,6 +41,7 @@ function WaitingRoom({ ticketId }: { ticketId: string }) {
     setCancelError(null);
     try {
       await ticketsApi.ticketsControllerCancel({ id: ticketId });
+      clearTicketId();
       router.replace('/');
     } catch (requestError: unknown) {
       if (getApiErrorStatus(requestError) === 404) {
@@ -137,7 +139,7 @@ function WaitingRoom({ ticketId }: { ticketId: string }) {
         : <PrimaryButton
           label="Retourner au choix du motif"
           accessibilityLabel="Retourner au choix du motif"
-          onPress={() => router.replace('/')}
+          onPress={() => { clearTicketId().then(() => router.replace('/')) }}
           secondary
         />
       }
