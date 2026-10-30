@@ -1,88 +1,102 @@
+import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { StyleSheet, Text, View } from 'react-native';
 
-import type { ReasonDto } from '@/api/generated';
-import { API_BASE_URL, reasonsApi } from '@/config';
+import { ReasonCode } from '@/api/generated';
+import { ErrorView } from '@/components/queue/error-view';
+import { PrimaryButton } from '@/components/queue/primary-button';
+import { ReasonList } from '@/components/queue/reason-list';
+import { ScreenContainer } from '@/components/queue/screen-container';
+import { SkeletonBlock } from '@/components/queue/skeleton-block';
+import { HealthcareTheme as theme } from '@/constants/theme';
+import { useJoinQueue } from '@/hooks/use-join-queue';
+import { useReasons } from '@/hooks/use-reasons';
 
 export default function HomeScreen() {
-  const [reasons, setReasons] = useState<ReasonDto[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  const { reasons, isLoading, error, retry } = useReasons();
+  const { join, isJoining, error: joinError, clearError } = useJoinQueue();
+  const [selectedReason, setSelectedReason] = useState<ReasonCode | null>(null);
 
-  async function loadReasons() {
-    setLoading(true);
-    setError(null);
-    try {
-      setReasons(await reasonsApi.reasonsControllerFindAll());
-    } catch (error: any) {
-      setError(`Could not connect to ${API_BASE_URL}. ${error}`);
-    } finally {
-      setLoading(false);
+  async function joinQueue() {
+    if (!selectedReason) return;
+    const ticket = await join(selectedReason);
+    if (ticket) {
+      router.push({ pathname: '/waiting/[ticketId]', params: { ticketId: ticket.id } });
     }
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
-        <Pressable
-          accessibilityRole="button"
-          disabled={loading}
-          onPress={loadReasons}
-          style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}>
-          {loading ? (
-            <ActivityIndicator color="#ffffff" />
-          ) : (
-            <Text style={styles.buttonText}>Load reasons</Text>
-          )}
-        </Pressable>
-
-        {error && <Text style={styles.error}>{error}</Text>}
-        {reasons.map((reason) => (
-          <Text key={reason.code} style={styles.reason}>
-            {reason.label}
-          </Text>
-        ))}
+    <ScreenContainer>
+      <View style={styles.heading}>
+        <Text style={styles.eyebrow}>TÉLÉCONSULTATION</Text>
+        <Text style={styles.title}>Comment pouvons-nous vous aider ?</Text>
+        <Text style={styles.description}>Choisissez le motif de votre consultation.</Text>
       </View>
-    </SafeAreaView>
+
+      {isLoading ? (
+        <View style={styles.skeletonList}>
+          <SkeletonBlock width="100%" height={66} />
+          <SkeletonBlock width="100%" height={66} />
+          <SkeletonBlock width="100%" height={66} />
+        </View>
+      ) : (
+        <>
+          {error && <ErrorView message={error} onRetry={() => void retry()} inline={reasons.length > 0} />}
+          {reasons.length > 0 ? (
+            <ReasonList
+              reasons={reasons}
+              selectedCode={selectedReason}
+              onSelect={(code) => {
+                setSelectedReason(code);
+                clearError();
+              }}
+            />
+          ) : !error ? (
+            <Text style={styles.empty}>Aucun motif n’est disponible pour le moment.</Text>
+          ) : null}
+        </>
+      )}
+
+      {joinError && <ErrorView message={joinError} onRetry={() => void joinQueue()} inline />}
+      <PrimaryButton
+        label="Rejoindre la file"
+        accessibilityLabel="Rejoindre la file d’attente"
+        onPress={() => void joinQueue()}
+        disabled={!selectedReason || isLoading}
+        loading={isJoining}
+      />
+    </ScreenContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#ffffff',
+  heading: {
+    gap: theme.spacing.sm,
+    paddingTop: theme.spacing.lg,
   },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 12,
-    padding: 24,
+  eyebrow: {
+    color: theme.colors.primary,
+    fontSize: 12,
+    fontWeight: '700',
   },
-  button: {
-    minWidth: 140,
-    minHeight: 48,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    borderRadius: 6,
-    backgroundColor: '#176b5b',
+  title: {
+    color: theme.colors.text,
+    fontSize: 29,
+    fontWeight: '700',
+    lineHeight: 36,
   },
-  buttonPressed: {
-    opacity: 0.8,
-  },
-  buttonText: {
-    color: '#ffffff',
+  description: {
+    color: theme.colors.muted,
     fontSize: 16,
-    fontWeight: '600',
+    lineHeight: 24,
   },
-  error: {
-    color: '#b42318',
-    textAlign: 'center',
+  skeletonList: {
+    gap: theme.spacing.sm,
   },
-  reason: {
-    color: '#202725',
+  empty: {
+    color: theme.colors.muted,
     fontSize: 16,
+    lineHeight: 24,
   },
 });
