@@ -37,7 +37,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "api:generate": "openapi-generator-cli generate -i ../backend/openapi.json -g typescript-fetch -o ./src/api/generated --global-property apis,models,supportingFiles --additional-properties=withInterfaces=true,stringEnums=true,enumPropertyNaming=UPPERCASE,useSingleRequestParameter=true,withoutRuntimeChecks=true"
   },
   "private": true
 }

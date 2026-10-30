@@ -1,0 +1,15 @@
+.openapi-generator-ignore
+apis/AppApi.ts
+apis/ReasonsApi.ts
+apis/TicketsApi.ts
+apis/index.ts
+docs/AppApi.md
+docs/CreateTicketDto.md
+docs/ReasonCode.md
+docs/ReasonDto.md
+docs/ReasonsApi.md
+docs/TicketResponseDto.md
+docs/TicketsApi.md
+index.ts
+models/index.ts
+runtime.ts

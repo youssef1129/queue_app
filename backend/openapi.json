@@ -1,0 +1,268 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/": {
+      "get": {
+        "operationId": "AppController_getHello",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "App"
+        ]
+      }
+    },
+    "/reasons": {
+      "get": {
+        "operationId": "ReasonsController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ReasonDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "List consultation reasons",
+        "tags": [
+          "reasons"
+        ]
+      }
+    },
+    "/tickets": {
+      "get": {
+        "operationId": "TicketsController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TicketResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "List all tickets",
+        "tags": [
+          "tickets"
+        ]
+      },
+      "post": {
+        "operationId": "TicketsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTicketDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TicketResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Reason missing or unknown"
+          }
+        },
+        "summary": "Join the queue",
+        "tags": [
+          "tickets"
+        ]
+      }
+    },
+    "/tickets/{id}": {
+      "get": {
+        "operationId": "TicketsController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TicketResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Ticket not found"
+          }
+        },
+        "summary": "Get ticket status, position and estimated wait",
+        "tags": [
+          "tickets"
+        ]
+      },
+      "delete": {
+        "operationId": "TicketsController_cancel",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TicketResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Ticket not found"
+          },
+          "409": {
+            "description": "Ticket already called or cancelled"
+          }
+        },
+        "summary": "Leave the queue",
+        "tags": [
+          "tickets"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Waiting room API",
+    "description": "Teleconsultation waiting room (fake data, in memory)",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "schemas": {
+      "ReasonCode": {
+        "type": "string",
+        "enum": [
+          "fievre",
+          "renouvellement-ordonnance",
+          "douleur",
+          "autre"
+        ]
+      },
+      "ReasonDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ReasonCode"
+              }
+            ]
+          },
+          "label": {
+            "type": "string",
+            "example": "Fièvre"
+          }
+        },
+        "required": [
+          "code",
+          "label"
+        ]
+      },
+      "TicketResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "a1b2c3d4-..."
+          },
+          "reason": {
+            "type": "string",
+            "example": "fievre"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "waiting",
+              "called",
+              "cancelled"
+            ],
+            "example": "waiting"
+          },
+          "position": {
+            "type": "number",
+            "example": 3,
+            "description": "1 = next to be called, 0 when not waiting"
+          },
+          "estimatedWaitMinutes": {
+            "type": "number",
+            "example": 15,
+            "description": "Position x average consultation time"
+          }
+        },
+        "required": [
+          "id",
+          "reason",
+          "status",
+          "position",
+          "estimatedWaitMinutes"
+        ]
+      },
+      "CreateTicketDto": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "example": "fievre",
+            "description": "Code from GET /reasons",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ReasonCode"
+              }
+            ]
+          }
+        },
+        "required": [
+          "reason"
+        ]
+      }
+    }
+  }
+}
