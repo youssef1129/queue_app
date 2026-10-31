@@ -24,6 +24,8 @@ import { TicketsService } from './tickets.service';
 import { Observable } from 'rxjs';
 import { TicketStatus } from './ticket.types';
 
+const SSE_HEARTBEAT_INTERVAL_MS = 15_000;
+
 @ApiTags('tickets')
 @Controller('tickets')
 export class TicketsController {
@@ -61,7 +63,7 @@ export class TicketsController {
     return new Observable<MessageEvent>((subscriber) => {
       const heartbeat = setInterval(
         () => subscriber.next({ comment: 'heartbeat' }),
-        15_000,
+        SSE_HEARTBEAT_INTERVAL_MS,
       );
       const subscription = updates.subscribe({
         next: (data) => {

@@ -1,4 +1,5 @@
 import * as Notifications from "expo-notifications";
+import { AndroidImportance } from "expo-notifications";
 import { Platform } from "react-native";
 
 // show the notification even when the app is in the foreground
@@ -16,7 +17,7 @@ export async function requestNotificationPermission(): Promise<boolean> {
     try {
       await Notifications.setNotificationChannelAsync("queue", {
         name: "File d’attente",
-        importance: Notifications.AndroidImportance.MAX,
+        importance: AndroidImportance.MAX,
         sound: "default",
         vibrationPattern: [0, 250, 250, 250],
         lightColor: "#0E7C86",
@@ -31,7 +32,6 @@ export async function requestNotificationPermission(): Promise<boolean> {
     const current = await Notifications.getPermissionsAsync();
     if (current.granted) return true;
     const asked = await Notifications.requestPermissionsAsync();
-    console.log("[notif] asked", asked.status);
     return asked.granted;
   } catch (error) {
     console.warn("[notif] permission error", error);

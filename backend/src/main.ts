@@ -16,8 +16,11 @@ async function bootstrap() {
     .build();
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, documentFactory);
+  SwaggerModule.setup('docs', app, documentFactory);
 
   await app.listen(process.env.PORT ?? 3000);
 }
-bootstrap();
+void bootstrap().catch((error: unknown) => {
+  console.error('Unable to start the API', error);
+  process.exitCode = 1;
+});

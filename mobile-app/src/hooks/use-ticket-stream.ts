@@ -10,6 +10,7 @@ import { getApiErrorMessage, getApiErrorStatus } from "@/utils/api-error";
 
 const POLL_INTERVAL_MS = 10_000;
 const RECONNECT_INTERVAL_MS = 30_000;
+const STREAM_INTERRUPTED_MESSAGE = "Flux interrompu. Reprise par interrogation périodique.";
 
 function parseTicket(data: string | null): TicketResponseDto | null {
   if (!data) return null;
@@ -30,7 +31,7 @@ function parseTicket(data: string | null): TicketResponseDto | null {
   }
 }
 
-export function useTicketPolling(ticketId: string) {
+export function useTicketStream(ticketId: string) {
   const [ticket, setTicket] = useState<TicketResponseDto | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -89,7 +90,7 @@ export function useTicketPolling(ticketId: string) {
       if (!active || stopped) return;
       source?.close();
       source = null;
-      setError((previous) => previous ?? "Flux interrompu. Reprise par interrogation périodique.");
+      setError((previous) => previous ?? STREAM_INTERRUPTED_MESSAGE);
       schedulePolling();
       scheduleReconnect();
     };

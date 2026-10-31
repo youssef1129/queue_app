@@ -11,7 +11,7 @@ import { SkeletonBlock } from '@/components/queue/skeleton-block';
 import { HealthcareTheme as theme } from '@/constants/theme';
 import { useJoinQueue } from '@/hooks/use-join-queue';
 import { useReasons } from '@/hooks/use-reasons';
-import { useRestoreTicket } from '@/hooks/useRestoreTicket';
+import { useRestoreTicket } from '@/hooks/use-restore-ticket';
 import { requestNotificationPermission } from '@/notifications/notifications';
 import { saveTicketId } from '@/storage/storage';
 

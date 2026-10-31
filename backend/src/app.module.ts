@@ -3,7 +3,7 @@ import { AppController } from './app.controller';
 import { ConfigModule } from '@nestjs/config';
 import { ReasonsModule } from './reasons/reasons.module';
 import { TicketsModule } from './tickets/tickets.module';
-import { ScheduleModule } from 'node_modules/@nestjs/schedule/dist/schedule.module';
+import { ScheduleModule } from '@nestjs/schedule';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),

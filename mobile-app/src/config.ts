@@ -3,9 +3,11 @@ import { Configuration, ReasonsApi, TicketsApi } from "./api/generated";
 
 const API_TIMEOUT_MS = 8_000;
 
+const DEFAULT_API_PORT = 7000;
+
 const defaultBaseUrl = Platform.select({
-  android: "http://192.168.1.143:7000",
-  default: "http://localhost:7000",
+  android: `http://10.0.2.2:${DEFAULT_API_PORT}`,
+  default: `http://localhost:${DEFAULT_API_PORT}`,
 });
 
 export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? defaultBaseUrl;

@@ -7,7 +7,7 @@ import {
   type TicketResponseDto,
 } from "@/api/generated";
 import { ticketsApi } from "@/config";
-import { useTicketPolling } from "./use-ticket-polling";
+import { useTicketStream } from "./use-ticket-stream";
 
 jest.mock("@/config", () => ({
   API_BASE_URL: "http://localhost:7000",
@@ -51,12 +51,12 @@ const waitingTicket: TicketResponseDto = {
 async function mountWaitingTicket() {
   let resolveTicket!: (value: TicketResponseDto) => void;
   findTicket.mockReturnValueOnce(new Promise((resolve) => { resolveTicket = resolve; }));
-  const hook = await renderHook(() => useTicketPolling(waitingTicket.id));
+  const hook = await renderHook(() => useTicketStream(waitingTicket.id));
   await act(async () => resolveTicket(waitingTicket));
   return hook;
 }
 
-describe("useTicketPolling", () => {
+describe("useTicketStream", () => {
   beforeEach(() => {
     jest.useRealTimers();
     jest.clearAllMocks();
@@ -66,7 +66,7 @@ describe("useTicketPolling", () => {
   it("shows the initial REST ticket and opens one stream", async () => {
     let resolveTicket!: (value: TicketResponseDto) => void;
     findTicket.mockReturnValue(new Promise((resolve) => { resolveTicket = resolve; }));
-    const { result } = await renderHook(() => useTicketPolling(waitingTicket.id));
+    const { result } = await renderHook(() => useTicketStream(waitingTicket.id));
 
     expect(result.current.isLoading).toBe(true);
     await act(async () => resolveTicket(waitingTicket));
@@ -128,7 +128,7 @@ describe("useTicketPolling", () => {
   it("marks a missing ticket and stops without retrying", async () => {
     jest.useFakeTimers();
     findTicket.mockRejectedValue(new ResponseError({ status: 404 } as Response));
-    const { result } = await renderHook(() => useTicketPolling(waitingTicket.id));
+    const { result } = await renderHook(() => useTicketStream(waitingTicket.id));
 
     expect(result.current.isLoading).toBe(false);
     expect(result.current.isNotFound).toBe(true);

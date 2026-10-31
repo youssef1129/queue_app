@@ -7,9 +7,9 @@ import { TicketsService } from './tickets.service';
 
 jest.mock('@nestjs/config', () => ({
   ConfigService: class {
-    constructor(private readonly values: Record<string, any> = {}) {}
+    constructor(private readonly values: Record<string, unknown> = {}) {}
 
-    get<T = any>(key: string, defaultValue?: T): T | undefined {
+    get<T = unknown>(key: string, defaultValue?: T): T | undefined {
       return (this.values[key] ?? defaultValue) as T;
     }
   },

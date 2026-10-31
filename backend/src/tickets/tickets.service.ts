@@ -13,6 +13,9 @@ import { Ticket, TicketStatus } from './ticket.types';
 import { Observable, Subject, concat, of } from 'rxjs';
 import { map, takeWhile } from 'rxjs/operators';
 
+const DEFAULT_AVERAGE_CONSULTATION_MINUTES = 5;
+const FAKE_PATIENT_COUNT = 3;
+
 @Injectable()
 export class TicketsService {
   private readonly tickets: Ticket[] = [];
@@ -24,7 +27,10 @@ export class TicketsService {
     config: ConfigService,
   ) {
     this.avgConsultationMinutes = Number(
-      config.get('AVG_CONSULTATION_MINUTES', 5),
+      config.get(
+        'AVG_CONSULTATION_MINUTES',
+        DEFAULT_AVERAGE_CONSULTATION_MINUTES,
+      ),
     );
     this.seedFakePatients();
   }
@@ -109,7 +115,7 @@ export class TicketsService {
   }
 
   private seedFakePatients(): void {
-    for (let i = 1; i <= 3; i++) {
+    for (let i = 1; i <= FAKE_PATIENT_COUNT; i++) {
       this.tickets.push({
         id: `seed-${i}`,
         reason: 'autre',

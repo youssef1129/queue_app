@@ -12,7 +12,7 @@ import { SkeletonBlock } from '@/components/queue/skeleton-block';
 import { ticketsApi } from '@/config';
 import { HealthcareTheme as theme } from '@/constants/theme';
 import { useCalledNotification } from '@/hooks/use-called-notification';
-import { useTicketPolling } from '@/hooks/use-ticket-polling';
+import { useTicketStream } from '@/hooks/use-ticket-stream';
 import { clearTicketId } from '@/storage/storage';
 import { getApiErrorMessage, getApiErrorStatus } from '@/utils/api-error';
 
@@ -29,13 +29,15 @@ export default function WaitingRoomRoute() {
 
 function WaitingRoom({ ticketId }: { ticketId: string }) {
   const router = useRouter();
-  const { ticket, isLoading, error, isRefreshing, isNotFound, retry } = useTicketPolling(ticketId);
+  const { ticket, isLoading, error, isRefreshing, isNotFound, retry } = useTicketStream(ticketId);
   useCalledNotification(ticket?.status);
   const [isCancelling, setIsCancelling] = useState(false);
   const [cancelError, setCancelError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (ticket?.status === TicketResponseDtoStatusEnum.CANCELLED) router.replace('/');
+    if (ticket?.status === TicketResponseDtoStatusEnum.CANCELLED) {
+      void clearTicketId().then(() => router.replace('/'));
+    }
   }, [router, ticket?.status]);
 
   async function cancelTicket() {
@@ -43,7 +45,7 @@ function WaitingRoom({ ticketId }: { ticketId: string }) {
     setCancelError(null);
     try {
       await ticketsApi.ticketsControllerCancel({ id: ticketId });
-      clearTicketId();
+      await clearTicketId();
       router.replace('/');
     } catch (requestError: unknown) {
       if (getApiErrorStatus(requestError) === 404) {

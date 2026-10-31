@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { getTicketId } from "../storage/storage";
+import { getTicketId } from "@/storage/storage";
 
 export function useRestoreTicket() {
   const router = useRouter();

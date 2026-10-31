@@ -22,7 +22,7 @@ jest.mock("@/constants/theme", () => ({
     radius: { sm: 2, md: 3, lg: 4, pill: 5 },
   },
 }));
-jest.mock("@/hooks/useRestoreTicket", () => ({ useRestoreTicket: () => ({ isRestoring: false }) }));
+jest.mock("@/hooks/use-restore-ticket", () => ({ useRestoreTicket: () => ({ isRestoring: false }) }));
 jest.mock("@/storage/storage", () => ({ saveTicketId: jest.fn(), clearTicketId: jest.fn() }));
 jest.mock("@/notifications/notifications", () => ({ requestNotificationPermission: jest.fn() }));
 jest.mock("@react-native-async-storage/async-storage", () => ({
