@@ -87,7 +87,7 @@ function WaitingRoom({ ticketId }: { ticketId: string }) {
         <Text style={styles.title}>Salle d’attente</Text>
         <ErrorView
           message={error}
-          onRetry={() => (isNotFound ? router.replace('/') : retry())}
+          onRetry={() => (isNotFound ? clearTicketId().then(() => router.replace('/')) : retry())}
           retryLabel={isNotFound ? 'Retourner au choix du motif' : 'Réessayer'}
         />
       </ScreenContainer>
@@ -95,7 +95,7 @@ function WaitingRoom({ ticketId }: { ticketId: string }) {
   }
 
   if (!ticket) {
-    return <MissingTicket onBack={() => router.replace('/')} />;
+    return <MissingTicket onBack={() =>{clearTicketId().then(() => router.replace('/'))}} />;
   }
 
   const isCalled = ticket.status === TicketResponseDtoStatusEnum.CALLED;
@@ -123,7 +123,7 @@ function WaitingRoom({ ticketId }: { ticketId: string }) {
         <PrimaryButton
           label="Retourner au choix du motif"
           accessibilityLabel="Retourner au choix du motif"
-          onPress={() => router.replace('/')}
+          onPress={() =>{clearTicketId().then(() => router.replace('/'))}}
           secondary
         />
       )}

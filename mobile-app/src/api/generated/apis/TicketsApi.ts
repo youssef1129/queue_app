@@ -39,6 +39,13 @@ export interface TicketsControllerFindOneRequest {
     id: string;
 }
 
+export interface TicketsControllerStreamRequest {
+    /**
+     * 
+     */
+    id: string;
+}
+
 /**
  * TicketsApi - interface
  * 
@@ -135,6 +142,29 @@ export interface TicketsApiInterface {
      * Get ticket status, position and estimated wait
      */
     ticketsControllerFindOne(requestParameters: TicketsControllerFindOneRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<TicketResponseDto>;
+
+    /**
+     * Creates request options for ticketsControllerStream without sending the request
+     * @param {string} id 
+     * @throws {RequiredError}
+     * @memberof TicketsApiInterface
+     */
+    ticketsControllerStreamRequestOpts(requestParameters: TicketsControllerStreamRequest): Promise<runtime.RequestOpts>;
+
+    /**
+     * 
+     * @summary Stream ticket status and queue position updates
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof TicketsApiInterface
+     */
+    ticketsControllerStreamRaw(requestParameters: TicketsControllerStreamRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
+
+    /**
+     * Stream ticket status and queue position updates
+     */
+    ticketsControllerStream(requestParameters: TicketsControllerStreamRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
 
 }
 
@@ -315,6 +345,50 @@ export class TicketsApi extends runtime.BaseAPI implements TicketsApiInterface {
     async ticketsControllerFindOne(requestParameters: TicketsControllerFindOneRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<TicketResponseDto> {
         const response = await this.ticketsControllerFindOneRaw(requestParameters, initOverrides);
         return await response.value();
+    }
+
+    /**
+     * Creates request options for ticketsControllerStream without sending the request
+     */
+    async ticketsControllerStreamRequestOpts(requestParameters: TicketsControllerStreamRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['id'] == null) {
+            throw new runtime.RequiredError(
+                'id',
+                'Required parameter "id" was null or undefined when calling ticketsControllerStream().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/tickets/{id}/stream`;
+        urlPath = urlPath.replace('{id}', encodeURIComponent(String(requestParameters['id'])));
+
+        return {
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     * Stream ticket status and queue position updates
+     */
+    async ticketsControllerStreamRaw(requestParameters: TicketsControllerStreamRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        const requestOptions = await this.ticketsControllerStreamRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     * Stream ticket status and queue position updates
+     */
+    async ticketsControllerStream(requestParameters: TicketsControllerStreamRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.ticketsControllerStreamRaw(requestParameters, initOverrides);
     }
 
 }

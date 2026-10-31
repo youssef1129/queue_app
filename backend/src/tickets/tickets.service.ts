@@ -10,10 +10,13 @@ import { ReasonsService } from '../reasons/reasons.service';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { TicketResponseDto } from './dto/ticket-response.dto';
 import { Ticket, TicketStatus } from './ticket.types';
+import { Observable, Subject, concat, of } from 'rxjs';
+import { map, takeWhile } from 'rxjs/operators';
 
 @Injectable()
 export class TicketsService {
   private readonly tickets: Ticket[] = [];
+  private readonly ticketChanges = new Subject<void>();
   private readonly avgConsultationMinutes: number;
 
   constructor(
@@ -53,6 +56,7 @@ export class TicketsService {
       throw new ConflictException(`Ticket already ${ticket.status}`);
     }
     ticket.status = TicketStatus.CANCELLED;
+    this.ticketChanges.next();
     return this.toResponse(ticket);
   }
 
@@ -61,7 +65,18 @@ export class TicketsService {
     const next = this.tickets.find((t) => t.status === TicketStatus.WAITING);
     if (next) {
       next.status = TicketStatus.CALLED;
+      this.ticketChanges.next();
     }
+  }
+
+  stream(id: string): Observable<TicketResponseDto> {
+    const ticket = this.getOrThrow(id);
+    return concat(
+      of(this.toResponse(ticket)),
+      this.ticketChanges.pipe(map(() => this.toResponse(this.getOrThrow(id)))),
+    ).pipe(
+      takeWhile((response) => response.status === TicketStatus.WAITING, true),
+    );
   }
 
   private getOrThrow(id: string): Ticket {

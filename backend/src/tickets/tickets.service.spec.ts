@@ -49,6 +49,26 @@ describe('TicketsService', () => {
     expect(called.position).toBe(0);
   });
 
+  it('emits queue changes and completes a stream when the ticket is called', () => {
+    const { id } = service.create({ reason: ReasonCode.DOULEUR });
+    const updates: string[] = [];
+    let completed = false;
+    service.stream(id).subscribe({
+      next: (ticket) => updates.push(ticket.status),
+      complete: () => (completed = true),
+    });
+
+    service.advanceQueue();
+    expect(updates).toHaveLength(2);
+    expect(completed).toBe(false);
+
+    service.advanceQueue();
+    service.advanceQueue();
+    service.advanceQueue();
+    expect(updates.at(-1)).toBe(TicketStatus.CALLED);
+    expect(completed).toBe(true);
+  });
+
   it('lets a waiting ticket leave and moves the others up', () => {
     const first = service.create({ reason: ReasonCode.AUTRE });
     const second = service.create({ reason: ReasonCode.AUTRE });

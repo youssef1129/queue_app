@@ -8,6 +8,7 @@ All URIs are relative to *http://localhost*
 | [**ticketsControllerCreate**](TicketsApi.md#ticketscontrollercreate) | **POST** /tickets | Join the queue |
 | [**ticketsControllerFindAll**](TicketsApi.md#ticketscontrollerfindall) | **GET** /tickets | List all tickets |
 | [**ticketsControllerFindOne**](TicketsApi.md#ticketscontrollerfindone) | **GET** /tickets/{id} | Get ticket status, position and estimated wait |
+| [**ticketsControllerStream**](TicketsApi.md#ticketscontrollerstream) | **GET** /tickets/{id}/stream | Stream ticket status and queue position updates |
 
 
 
@@ -262,6 +263,71 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** |  |  -  |
+| **404** | Ticket not found |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
+## ticketsControllerStream
+
+> ticketsControllerStream(id)
+
+Stream ticket status and queue position updates
+
+### Example
+
+```ts
+import {
+  Configuration,
+  TicketsApi,
+} from '';
+import type { TicketsControllerStreamRequest } from '';
+
+async function example() {
+  console.log("🚀 Testing  SDK...");
+  const api = new TicketsApi();
+
+  const body = {
+    // string
+    id: id_example,
+  } satisfies TicketsControllerStreamRequest;
+
+  try {
+    const data = await api.ticketsControllerStream(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **id** | `string` |  | [Defaults to `undefined`] |
+
+### Return type
+
+`void` (Empty response body)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: Not defined
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
 | **404** | Ticket not found |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
