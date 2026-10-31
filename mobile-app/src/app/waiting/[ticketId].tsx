@@ -67,7 +67,7 @@ function WaitingRoom({ ticketId }: { ticketId: string }) {
     ]);
   }
 
-  if (isLoading && !ticket) {
+  if (isLoading && !ticket && !error) {
     return (
       <ScreenContainer>
         <Text style={styles.title}>Salle d’attente</Text>

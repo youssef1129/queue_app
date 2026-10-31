@@ -48,7 +48,7 @@ export default function HomeScreen() {
         <Text style={styles.description}>Choisissez le motif de votre consultation.</Text>
       </View>
 
-      {isLoading ? (
+      {isLoading && !error ? (
         <View style={styles.skeletonList}>
           <SkeletonBlock width="100%" height={66} />
           <SkeletonBlock width="100%" height={66} />

@@ -10,11 +10,12 @@ export function useReasons() {
   const [error, setError] = useState<string | null>(null);
   const mountedRef = useRef(false);
   const inFlightRef = useRef(false);
+  const hasLoadedRef = useRef(false);
 
   const loadReasons = useCallback(async () => {
     if (inFlightRef.current) return;
     inFlightRef.current = true;
-    if (mountedRef.current) setIsLoading(true);
+    if (mountedRef.current && !hasLoadedRef.current) setIsLoading(true);
 
     try {
       const result = await reasonsApi.reasonsControllerFindAll();
@@ -27,13 +28,16 @@ export function useReasons() {
         setError(getApiErrorMessage(requestError, "reasons"));
     } finally {
       inFlightRef.current = false;
+      hasLoadedRef.current = true;
       if (mountedRef.current) setIsLoading(false);
     }
   }, []);
 
   useEffect(() => {
     mountedRef.current = true;
-    void loadReasons();
+    void Promise.resolve().then(() => {
+      if (mountedRef.current) return loadReasons();
+    });
     return () => {
       mountedRef.current = false;
     };

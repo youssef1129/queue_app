@@ -12,6 +12,10 @@ export function getApiErrorMessage(
 ): string {
   const status = getApiErrorStatus(error);
 
+  if (isNetworkFailure(error)) {
+    return "Impossible de joindre le serveur. Vérifiez votre connexion.";
+  }
+
   if (status === 400 && context === "join") {
     return "Ce motif ne peut pas être utilisé pour le moment. Choisissez un autre motif.";
   }
@@ -24,9 +28,6 @@ export function getApiErrorMessage(
   if (status === 409) {
     return "Votre demande a déjà changé. Réessayez dans un instant.";
   }
-  if (error instanceof FetchError || error instanceof TypeError) {
-    return "Connexion impossible au service. Vérifiez votre connexion puis réessayez.";
-  }
   if (status !== undefined && status >= 500) {
     return "Le service est momentanément indisponible. Réessayez dans un instant.";
   }
@@ -37,4 +38,8 @@ export function getApiErrorMessage(
     return "La demande n’a pas pu être comprise. Vérifiez les informations puis réessayez.";
   }
   return "Une erreur est survenue. Réessayez dans un instant.";
+}
+
+function isNetworkFailure(error: unknown): boolean {
+  return error instanceof TypeError || error instanceof FetchError;
 }
